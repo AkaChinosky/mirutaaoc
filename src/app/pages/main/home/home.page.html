@@ -1,0 +1,99 @@
+<ion-content>
+
+  <ion-tabs>
+    <!-- Pestaña Unirse a viaje -->
+    <ion-tab tab="home">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Unirse a viaje</ion-title>
+        </ion-toolbar>
+      </ion-header>
+    </ion-tab>
+
+    <!-- Pestaña Iniciar un viaje (Formulario) -->
+    <ion-tab tab="iniciar-viaje">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Iniciar un viaje</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <!-- <ion-content class="form-content">
+        <form [formGroup]="form" class="form-wrapper ion-padding" (ngSubmit)="submit()" (keypress.enter)="submit()">
+          
+          
+          <app-custom-input
+            autocomplete="vehiculo"
+            [control]="form.controls.vehiculo"
+            type="text"
+            label="Vehículo"
+          ></app-custom-input>
+
+          
+          <app-custom-input
+            autocomplete="patente"
+            [control]="form.controls.patente"
+            type="text"
+            label="Patente"
+          ></app-custom-input>
+
+          
+          <app-custom-input
+            [control]="form.controls.espacio"
+            type="number"
+            label="Espacio disponible"
+          ></app-custom-input>
+
+          
+          <app-custom-input
+            [control]="form.controls.price"
+            type="number"
+            label="Precio por persona"
+          ></app-custom-input>
+
+          
+          <ion-item>
+            <ion-label position="stacked">Destino</ion-label>
+            <div id="map" style="height: 200px; width: 100%;"></div>
+          </ion-item>
+
+           
+          <ion-button mode="ios" class="ion-margin" type="submit" [disabled]="form.invalid">
+            Iniciar viaje
+            <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
+          </ion-button>
+          
+        </form>
+      </ion-content> -->
+    </ion-tab>
+
+    <!-- Pestaña Historial de viajes -->
+    <ion-tab tab="historial">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Historial de viajes</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list>
+
+        </ion-list>
+      </ion-content>
+    </ion-tab>
+
+    <!-- Barra de pestañas inferior -->
+    <ion-tab-bar slot="bottom">
+      <ion-tab-button tab="home">
+        <ion-icon name="car-sport-outline"></ion-icon>
+        <ion-label>Unirse a viaje</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="iniciar-viaje">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <ion-label>Iniciar un viaje</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="historial">
+        <ion-icon name="time-outline"></ion-icon>
+        <ion-label>Historial de viajes</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ion-tabs>
+</ion-content>
