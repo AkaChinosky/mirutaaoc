@@ -5,14 +5,15 @@
 export const environment = {
   production: false,
 
-  firebaseConfig:{
-    apiKey: "AIzaSyC_z2NM13HOzos5nC8VuUqWdKL1kpia4l4",
-    authDomain: "mirutauc.firebaseapp.com",
-    projectId: "mirutauc",
-    storageBucket: "mirutauc.firebasestorage.app",
-    messagingSenderId: "1096233482981",
-    appId: "1:1096233482981:web:5640516b21c4337200b20c"
+  firebaseConfig: {
+    apiKey: "AIzaSyAJ1IJqd5CfAxJf_8MUmOv_TIK3R3NP2hI",
+    authDomain: "mirutaduocuc.firebaseapp.com",
+    projectId: "mirutaduocuc",
+    storageBucket: "mirutaduocuc.firebasestorage.app",
+    messagingSenderId: "801252081529",
+    appId: "1:801252081529:web:da5c12716b2d6d189cb9a8"
   }
+  
 
 };
 
