@@ -1,0 +1,7 @@
+{
+  "name": "mirutauc",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
