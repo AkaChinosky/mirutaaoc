@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { User } from 'src/app/models/user.model';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { UtilsService } from 'src/app/services/utils.service';
+import { ModalController } from '@ionic/angular';
+import { ViajeDetalleModalComponent } from 'src/app/viaje-detalle-modal/viaje-detalle-modal.component';  // Importa el modal
 
 @Component({
   selector: 'app-home',
@@ -10,9 +12,10 @@ import { UtilsService } from 'src/app/services/utils.service';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
-  
+
   firebaseSvc = inject(FirebaseService);
   utilsSvc = inject(UtilsService);
+  modalController = inject(ModalController);  // Inyectamos ModalController
   form: FormGroup;
   userName: string;
   viajes = [];
@@ -91,13 +94,6 @@ export class HomePage implements OnInit {
     });
   }
 
-  openViajeDetail(viaje) {
-    this.utilsSvc.presentToast({
-      message: `Detalles del viaje:\nVehículo: ${viaje.vehiculo}, Patente: ${viaje.patente}, Precio: ${viaje.price}, Espacios: ${viaje.espacio}`,
-      duration: 3000
-    });
-  }
-
   applyFilter() {
     this.filteredViajes = [...this.viajes];
     switch (this.sortBy) {
@@ -136,11 +132,13 @@ export class HomePage implements OnInit {
     });
   }
 
-  verDetalle(viaje) {
-    this.utilsSvc.presentToast({
-      message: `Vehículo: ${viaje.vehiculo}, Patente: ${viaje.patente}, Precio: ${viaje.price}, Espacios: ${viaje.espacio}`,
-      duration: 3000
+  // Nueva función para abrir el modal con los detalles del viaje
+  async verDetalle(viaje: any) {
+    const modal = await this.modalController.create({
+      component: ViajeDetalleModalComponent,  // Componente modal que muestra los detalles
+      componentProps: { viaje }  // Pasamos los detalles del viaje al modal
     });
+    return await modal.present();
   }
 
   get vehiculo(): FormControl {
@@ -165,7 +163,7 @@ export class HomePage implements OnInit {
       this.utilsSvc.presentToast({ message: 'Ya tienes un viaje en curso.', duration: 2000 });
       return;
     }
-  
+
     if (this.form.valid) {
       const viajeData = {
         ...this.form.value,
@@ -173,7 +171,7 @@ export class HomePage implements OnInit {
         horaInicio: new Date().toLocaleString(),
         estado: 'en_curso' // Marca el viaje como "en curso"
       };
-  
+
       this.firebaseSvc.guardarViaje(viajeData).then(() => {
         this.firebaseSvc.agregarHistorial(viajeData, 'conductor').then(() => {
           this.utilsSvc.presentToast({ message: 'Viaje iniciado con éxito', duration: 2000 });
@@ -188,4 +186,16 @@ export class HomePage implements OnInit {
   user(): User {
     return this.utilsSvc.getFromLocalStorage('user');
   }
+
+
+
+  // Función para abrir el modal con los detalles del viaje
+  async openViajeDetail(viaje: any) {
+    const modal = await this.modalController.create({
+      component: ViajeDetalleModalComponent,  // Modal que se abrirá
+      componentProps: { viaje: viaje }      // Pasa los datos del viaje al modal
+    });
+    await modal.present();  // Muestra el modal
+  }
+
 }

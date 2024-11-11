@@ -98,18 +98,20 @@
           </ion-segment-button>
         </ion-segment>
         
-        <!-- Historial de viajes como pasajero -->
         <ion-list *ngIf="historialSegment === 'unirse'">
-          <ion-item *ngFor="let viaje of viajesUnidos">
+          <ion-item *ngFor="let viaje of filteredViajes" (click)="openViajeDetail(viaje)">
             <ion-label>
               <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
               <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }}</p>
             </ion-label>
-            <ion-button slot="end" color="primary" fill="outline" (click)="verDetalle(viaje)">
+            <ion-button slot="end" color="primary" fill="outline">
               Ver detalles
             </ion-button>
           </ion-item>
         </ion-list>
+        
+
+
     
         <!-- Historial de viajes como conductor -->
         <ion-list *ngIf="historialSegment === 'iniciar'">
