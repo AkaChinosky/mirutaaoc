@@ -6,7 +6,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { getFirestore, setDoc, doc, getDoc, addDoc, collection, collectionData, query, where } from '@angular/fire/firestore';
 import { UtilsService } from './utils.service';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -58,7 +58,9 @@ export class FirebaseService {
   }
 
   guardarViaje(viaje: any) {
-    return addDoc(collection(getFirestore(), 'viajes'), viaje);
+    // Define el viaje con estado "en curso" para evitar duplicados
+    const viajeData = { ...viaje, estado: 'en_curso' };
+    return addDoc(collection(getFirestore(), 'viajes'), viajeData);
   }
 
   actualizarViaje(viaje: any) {
@@ -70,10 +72,14 @@ export class FirebaseService {
     const user = this.utilsSvc.getFromLocalStorage('user');
     const historialItem = {
       userId: user.id,
+      userName: this.utilsSvc.getFromLocalStorage('user').name,
       role: role,
       viajeId: viaje.id,
       fecha: new Date(),
-      ...viaje
+      vehiculo: viaje.vehiculo,
+      patente: viaje.patente,
+      price: viaje.price,
+      espacio: viaje.espacio,
     };
     return addDoc(collection(getFirestore(), 'historialViajes'), historialItem);
   }
@@ -103,5 +109,31 @@ export class FirebaseService {
 
   obtenerViajes(): Observable<any[]> {
     return this.firestore.collection('viajes').valueChanges({ idField: 'id' });
+  }
+
+  obtenerViajeEnCurso(userId: string): Observable<any> {
+    const ref = collection(getFirestore(), 'viajes');
+    const q = query(ref, where('userId', '==', userId), where('estado', '==', 'en_curso'));
+    return collectionData(q, { idField: 'id' }).pipe(
+      map((viajes) => (viajes.length > 0 ? viajes[0] : null)) // Asumimos que solo puede haber un viaje en curso
+    );
+  }
+
+  // Método adicional para verificar si hay un viaje en curso antes de iniciar uno nuevo
+  async verificarViajeEnCurso(userId: string): Promise<boolean> {
+    const ref = collection(getFirestore(), 'viajes');
+    const q = query(ref, where('userId', '==', userId), where('estado', '==', 'en_curso'));
+    const viajesEnCurso = await collectionData(q).pipe(map((viajes) => viajes.length > 0)).toPromise();
+    return viajesEnCurso;
+  }
+
+  iniciarViaje(viaje: any) {
+    return this.verificarViajeEnCurso(viaje.userId).then((enCurso) => {
+      if (!enCurso) {
+        return this.guardarViaje(viaje);
+      } else {
+        throw new Error("Ya tienes un viaje en curso");
+      }
+    });
   }
 }

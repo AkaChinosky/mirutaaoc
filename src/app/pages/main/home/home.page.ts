@@ -10,32 +10,63 @@ import { UtilsService } from 'src/app/services/utils.service';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
-
+  
   firebaseSvc = inject(FirebaseService);
   utilsSvc = inject(UtilsService);
   form: FormGroup;
   userName: string;
-  viajes = []; // Array para almacenar todos los viajes
-  viajesUnidos = []; // Array para viajes en los que el usuario se unió como pasajero
-  viajesIniciados = []; // Array para viajes iniciados por el usuario como conductor
-  filteredViajes = []; // Array para almacenar los viajes filtrados
-  sortBy = 'precio'; // Criterio de ordenación predeterminado
-  historialSegment = 'unirse'; // Segmento por defecto para el historial
+  viajes = [];
+  viajesUnidos = [];
+  viajesIniciados = [];
+  filteredViajes = [];
+  sortBy = 'precio';
+  historialSegment = 'unirse';
+  joinedTripId: string | null = null; // Guardar el ID del viaje al que se unió el usuario
+  viajeEnCurso: any = null; // Almacena el viaje en curso del usuario
 
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
     this.initForm();
     this.loadUserName();
-    this.loadViajes(); // Cargar viajes al inicializar el componente
+    this.loadViajes();
+    this.checkViajeEnCurso(); // Verifica si hay un viaje en curso
   }
 
   initForm() {
     this.form = this.fb.group({
-      vehiculo: ['', Validators.required],
-      patente: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(7)]],
-      espacio: ['', [Validators.required, Validators.min(1)]],
-      price: ['', [Validators.required, Validators.min(0)]],
+      vehiculo: [
+        '',
+        [
+          Validators.required,
+          Validators.maxLength(10),
+          Validators.pattern('^[a-zA-Z]+$') // Solo letras (sin espacios ni números)
+        ]
+      ],
+      patente: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(6),
+          Validators.pattern('^[a-zA-Z0-9]+$') // Solo letras y números
+        ]
+      ],
+      espacio: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[1-4]$') // Solo números del 1 al 4
+        ]
+      ],
+      price: [
+        '',
+        [
+          Validators.required,
+          Validators.min(0), // No permitir números negativos
+          Validators.pattern('^[0-9]+$') // Solo números
+        ]
+      ]
     });
   }
 
@@ -44,16 +75,21 @@ export class HomePage implements OnInit {
     this.userName = user?.name || 'Usuario';
   }
 
-  // Cargar viajes desde Firebase y dividir en listas de viajes iniciados y unidos
   loadViajes() {
     this.firebaseSvc.obtenerViajes().subscribe((viajes) => {
       this.viajes = viajes;
       this.viajesUnidos = viajes.filter(viaje => viaje.pasajeros?.includes(this.userName));
       this.viajesIniciados = viajes.filter(viaje => viaje.user === this.userName);
-      this.applyFilter(); // Aplica el filtro en viajes actuales
+      this.applyFilter();
     });
   }
 
+  checkViajeEnCurso() {
+    // Verifica si hay un viaje en curso para el usuario
+    this.firebaseSvc.obtenerViajeEnCurso(this.userName).subscribe((viaje) => {
+      this.viajeEnCurso = viaje;
+    });
+  }
 
   openViajeDetail(viaje) {
     this.utilsSvc.presentToast({
@@ -62,7 +98,6 @@ export class HomePage implements OnInit {
     });
   }
 
-  // Aplicar filtro según el criterio seleccionado
   applyFilter() {
     this.filteredViajes = [...this.viajes];
     switch (this.sortBy) {
@@ -81,12 +116,26 @@ export class HomePage implements OnInit {
     }
   }
 
-  // Función para unirse a un viaje
   joinViaje(viaje) {
-    this.utilsSvc.presentToast({ message: `Te has unido al viaje en ${viaje.vehiculo}`, duration: 2000 });
+    // Verifica si ya está en otro viaje
+    if (this.joinedTripId) {
+      this.utilsSvc.presentToast({ message: `Ya estás unido a otro viaje.`, duration: 2000 });
+      return;
+    }
+
+    this.firebaseSvc.actualizarViaje({
+      ...viaje,
+      espacio: viaje.espacio - 1,
+      pasajeros: [...(viaje.pasajeros || []), this.userName]
+    }).then(() => {
+      this.firebaseSvc.agregarHistorial(viaje, 'pasajero').then(() => {
+        this.utilsSvc.presentToast({ message: `Te has unido al viaje en ${viaje.vehiculo}`, duration: 2000 });
+        this.joinedTripId = viaje.id;
+        this.loadViajes();
+      });
+    });
   }
 
-  // Función para ver los detalles de un viaje en el historial
   verDetalle(viaje) {
     this.utilsSvc.presentToast({
       message: `Vehículo: ${viaje.vehiculo}, Patente: ${viaje.patente}, Precio: ${viaje.price}, Espacios: ${viaje.espacio}`,
@@ -94,7 +143,6 @@ export class HomePage implements OnInit {
     });
   }
 
-  // Setter para los controles del formulario
   get vehiculo(): FormControl {
     return this.form.get('vehiculo') as FormControl;
   }
@@ -111,16 +159,28 @@ export class HomePage implements OnInit {
     return this.form.get('price') as FormControl;
   }
 
-  // Submit para crear un nuevo viaje como conductor
   submit() {
+    // Si ya hay un viaje en curso, no permite iniciar otro
+    if (this.viajeEnCurso) {
+      this.utilsSvc.presentToast({ message: 'Ya tienes un viaje en curso.', duration: 2000 });
+      return;
+    }
+  
     if (this.form.valid) {
       const viajeData = {
         ...this.form.value,
         user: this.userName,
+        horaInicio: new Date().toLocaleString(),
+        estado: 'en_curso' // Marca el viaje como "en curso"
       };
+  
       this.firebaseSvc.guardarViaje(viajeData).then(() => {
-        this.utilsSvc.presentToast({ message: 'Viaje iniciado con éxito', duration: 2000 });
-        this.form.reset();
+        this.firebaseSvc.agregarHistorial(viajeData, 'conductor').then(() => {
+          this.utilsSvc.presentToast({ message: 'Viaje iniciado con éxito', duration: 2000 });
+          this.form.reset();
+          this.viajeEnCurso = viajeData; // Actualiza el viaje en curso
+          this.loadViajes();
+        });
       });
     }
   }
