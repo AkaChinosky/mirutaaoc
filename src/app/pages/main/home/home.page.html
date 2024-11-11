@@ -1,5 +1,5 @@
 <ion-content>
-
+    <ion-content>
   <ion-tabs>
     <!-- Pestaña Unirse a viaje -->
     <ion-tab tab="home">
@@ -8,6 +8,27 @@
           <ion-title>Unirse a viaje</ion-title>
         </ion-toolbar>
       </ion-header>
+
+      <ion-content>
+        <!-- Selector de filtro -->
+        <ion-segment [(ngModel)]="sortBy" (ionChange)="applyFilter()">
+          <ion-segment-button value="precio">Precio</ion-segment-button>
+          <ion-segment-button value="espacio">Espacio</ion-segment-button>
+          <ion-segment-button value="disponibles">Disponibles</ion-segment-button>
+          <ion-segment-button value="cercania">Cercanía</ion-segment-button>
+        </ion-segment>
+
+        <!-- Lista de viajes -->
+        <ion-list>
+          <ion-item *ngFor="let viaje of filteredViajes" (click)="openViajeDetail(viaje)">
+            <ion-label>
+              <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
+              <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }}</p>
+            </ion-label>
+            <ion-button slot="end" (click)="joinViaje(viaje); $event.stopPropagation()">Unirse</ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-content>
     </ion-tab>
 
     <!-- Pestaña Iniciar un viaje (Formulario) -->
@@ -17,54 +38,46 @@
           <ion-title>Iniciar un viaje</ion-title>
         </ion-toolbar>
       </ion-header>
-      <!-- <ion-content class="form-content">
+
+      <ion-content class="form-content">
         <form [formGroup]="form" class="form-wrapper ion-padding" (ngSubmit)="submit()" (keypress.enter)="submit()">
-          
-          
-          <app-custom-input
-            autocomplete="vehiculo"
-            [control]="form.controls.vehiculo"
-            type="text"
-            label="Vehículo"
-          ></app-custom-input>
 
-          
-          <app-custom-input
-            autocomplete="patente"
-            [control]="form.controls.patente"
-            type="text"
-            label="Patente"
-          ></app-custom-input>
-
-          
-          <app-custom-input
-            [control]="form.controls.espacio"
-            type="number"
-            label="Espacio disponible"
-          ></app-custom-input>
-
-          
-          <app-custom-input
-            [control]="form.controls.price"
-            type="number"
-            label="Precio por persona"
-          ></app-custom-input>
-
-          
+  
           <ion-item>
-            <ion-label position="stacked">Destino</ion-label>
-            <div id="map" style="height: 200px; width: 100%;"></div>
+            <ion-label position="floating">Usuario</ion-label>
+            <h2>{{ userName }}</h2>
           </ion-item>
 
-           
+          <!-- Campo Vehículo -->
+          <ion-item>
+            <ion-label position="floating">Vehículo</ion-label>
+            <ion-input type="text" [formControl]="vehiculo" autocomplete="on"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Patente</ion-label>
+            <ion-input type="text" [formControl]="patente" autocomplete="on"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Espacio disponible</ion-label>
+            <ion-input type="number" [formControl]="espacio"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Precio por persona</ion-label>
+            <ion-input type="number" [formControl]="price"></ion-input>
+          </ion-item>
+
           <ion-button mode="ios" class="ion-margin" type="submit" [disabled]="form.invalid">
             Iniciar viaje
             <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
           </ion-button>
-          
+
         </form>
-      </ion-content> -->
+      </ion-content>
     </ion-tab>
+
 
     <!-- Pestaña Historial de viajes -->
     <ion-tab tab="historial">
@@ -73,9 +86,42 @@
           <ion-title>Historial de viajes</ion-title>
         </ion-toolbar>
       </ion-header>
+      
       <ion-content>
-        <ion-list>
-
+        <!-- Selector para cambiar entre los apartados de historial -->
+        <ion-segment [(ngModel)]="historialSegment">
+          <ion-segment-button value="unirse">
+            Unirse a viajes
+          </ion-segment-button>
+          <ion-segment-button value="iniciar">
+            Iniciar viajes
+          </ion-segment-button>
+        </ion-segment>
+        
+        <!-- Historial de viajes como pasajero -->
+        <ion-list *ngIf="historialSegment === 'unirse'">
+          <ion-item *ngFor="let viaje of viajesUnidos">
+            <ion-label>
+              <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
+              <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }}</p>
+            </ion-label>
+            <ion-button slot="end" color="primary" fill="outline" (click)="verDetalle(viaje)">
+              Ver detalles
+            </ion-button>
+          </ion-item>
+        </ion-list>
+    
+        <!-- Historial de viajes como conductor -->
+        <ion-list *ngIf="historialSegment === 'iniciar'">
+          <ion-item *ngFor="let viaje of viajesIniciados">
+            <ion-label>
+              <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
+              <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }}</p>
+            </ion-label>
+            <ion-button slot="end" color="secondary" fill="outline" (click)="verDetalle(viaje)">
+              Ver detalles
+            </ion-button>
+          </ion-item>
         </ion-list>
       </ion-content>
     </ion-tab>

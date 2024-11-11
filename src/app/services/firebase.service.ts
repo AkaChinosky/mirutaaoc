@@ -1,68 +1,92 @@
 import { inject, Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, updateCurrentUser, sendPasswordResetEmail} from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 import { User } from '../models/user.model';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { getFirestore, setDoc, doc, getDoc, addDoc, collection, collectionData, query} from '@angular/fire/firestore';
+import { getFirestore, setDoc, doc, getDoc, addDoc, collection, collectionData, query, where } from '@angular/fire/firestore';
 import { UtilsService } from './utils.service';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
-
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FirebaseService {
 
-  auth = inject(AngularFireAuth)
-  firestore = inject(AngularFirestore)
-  utilsSvc = inject(UtilsService)
-
+  auth = inject(AngularFireAuth);
+  firestore = inject(AngularFirestore);
+  utilsSvc = inject(UtilsService);
 
   getAuth() {
     return getAuth();
   }
 
-
-  //autenticacion
+  // Autenticación
   signIn(user: User) {
-    return signInWithEmailAndPassword(getAuth(), user.email, user.password)
+    return signInWithEmailAndPassword(getAuth(), user.email, user.password);
   }
 
-  //Crear usuario
   signUp(user: User) {
-    return createUserWithEmailAndPassword(getAuth(), user.email, user.password)
+    return createUserWithEmailAndPassword(getAuth(), user.email, user.password);
   }
 
-  //Actualizar usuarios
   updateUser(displayName: string) {
-    return updateProfile(getAuth().currentUser, { displayName })
+    return updateProfile(getAuth().currentUser, { displayName });
   }
-
-  //cambiar contrasena por email
 
   sendRecoveryEmail(email: string) {
     return sendPasswordResetEmail(getAuth(), email);
   }
 
-  //Funcion para cerrar sesion de los usuarios
   signOut() {
     getAuth().signOut();
     localStorage.removeItem('user');
     this.utilsSvc.routerLink('/auth');
   }
 
-  //Funcion para los items
-
-  getcollectionData(path: string, collectionQuery?: any) {
-    const ref = collection(getFirestore(), path);
-    return collectionData(query(ref, collectionQuery))
+  // Métodos específicos para viajes
+  getViajesDisponibles(): Observable<any[]> {
+    const ref = collection(getFirestore(), 'viajes');
+    const q = query(ref, where('espacio', '>', 0)); // Puedes ajustar el filtro según tus necesidades
+    return collectionData(q, { idField: 'id' });
   }
 
+  getHistorialViajes(userId: string): Observable<any[]> {
+    const ref = collection(getFirestore(), 'historialViajes');
+    const q = query(ref, where('userId', '==', userId));
+    return collectionData(q, { idField: 'id' });
+  }
 
-  //base de datos
+  guardarViaje(viaje: any) {
+    // Define el viaje con estado "en curso" para evitar duplicados
+    const viajeData = { ...viaje, estado: 'en_curso' };
+    return addDoc(collection(getFirestore(), 'viajes'), viajeData);
+  }
+
+  actualizarViaje(viaje: any) {
+    const viajeDoc = doc(getFirestore(), `viajes/${viaje.id}`);
+    return setDoc(viajeDoc, viaje, { merge: true });
+  }
+
+  agregarHistorial(viaje: any, role: string) {
+    const user = this.utilsSvc.getFromLocalStorage('user');
+    const historialItem = {
+      userId: user.id,
+      userName: this.utilsSvc.getFromLocalStorage('user').name,
+      role: role,
+      viajeId: viaje.id,
+      fecha: new Date(),
+      vehiculo: viaje.vehiculo,
+      patente: viaje.patente,
+      price: viaje.price,
+      espacio: viaje.espacio,
+    };
+    return addDoc(collection(getFirestore(), 'historialViajes'), historialItem);
+  }
+
+  // Otros métodos
   setDocument(path: string, data: any) {
     return setDoc(doc(getFirestore(), path), data);
-
   }
 
   async getDocument(path: string) {
@@ -81,5 +105,35 @@ export class FirebaseService {
     const storageRef = ref(getStorage(), path);
     await uploadString(storageRef, data_url, 'data_url');
     return getDownloadURL(storageRef);
+  }
+
+  obtenerViajes(): Observable<any[]> {
+    return this.firestore.collection('viajes').valueChanges({ idField: 'id' });
+  }
+
+  obtenerViajeEnCurso(userId: string): Observable<any> {
+    const ref = collection(getFirestore(), 'viajes');
+    const q = query(ref, where('userId', '==', userId), where('estado', '==', 'en_curso'));
+    return collectionData(q, { idField: 'id' }).pipe(
+      map((viajes) => (viajes.length > 0 ? viajes[0] : null)) // Asumimos que solo puede haber un viaje en curso
+    );
+  }
+
+  // Método adicional para verificar si hay un viaje en curso antes de iniciar uno nuevo
+  async verificarViajeEnCurso(userId: string): Promise<boolean> {
+    const ref = collection(getFirestore(), 'viajes');
+    const q = query(ref, where('userId', '==', userId), where('estado', '==', 'en_curso'));
+    const viajesEnCurso = await collectionData(q).pipe(map((viajes) => viajes.length > 0)).toPromise();
+    return viajesEnCurso;
+  }
+
+  iniciarViaje(viaje: any) {
+    return this.verificarViajeEnCurso(viaje.userId).then((enCurso) => {
+      if (!enCurso) {
+        return this.guardarViaje(viaje);
+      } else {
+        throw new Error("Ya tienes un viaje en curso");
+      }
+    });
   }
 }
