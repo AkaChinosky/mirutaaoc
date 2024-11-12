@@ -23,7 +23,7 @@
 
   #map {
     width: 100%;
-    height: 100vh;
+    height: 400px; /* O ajusta según el espacio que necesites */
   }
   
   .start-marker, .end-marker {
@@ -38,3 +38,8 @@
     object-fit: cover;
     border-radius: 8px;
   }
+
+  .vehicle-marker {
+    font-size: 24px;
+  }
+  

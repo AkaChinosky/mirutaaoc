@@ -6,7 +6,7 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-
+import { HttpClientModule } from '@angular/common/http'; 
 
 //firebase
 import { AngularFireModule } from '@angular/fire/compat';
@@ -18,6 +18,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   imports: [BrowserModule, 
     IonicModule.forRoot(), 
     AppRoutingModule, 
+    HttpClientModule, 
     AngularFireModule.initializeApp(environment.firebaseConfig),
     ReactiveFormsModule
   ],

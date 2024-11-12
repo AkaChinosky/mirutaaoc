@@ -8,6 +8,7 @@ import { UtilsService } from './utils.service';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { map, Observable } from 'rxjs';
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -47,7 +48,7 @@ export class FirebaseService {
   // Métodos específicos para viajes
   getViajesDisponibles(): Observable<any[]> {
     const ref = collection(getFirestore(), 'viajes');
-    const q = query(ref, where('espacio', '>', 0)); // Puedes ajustar el filtro según tus necesidades
+    const q = query(ref, where('espacio', '>', 0));
     return collectionData(q, { idField: 'id' });
   }
 
@@ -58,7 +59,6 @@ export class FirebaseService {
   }
 
   guardarViaje(viaje: any) {
-    // Define el viaje con estado "en curso" para evitar duplicados
     const viajeData = { ...viaje, estado: 'en_curso' };
     return addDoc(collection(getFirestore(), 'viajes'), viajeData);
   }
@@ -72,7 +72,7 @@ export class FirebaseService {
     const user = this.utilsSvc.getFromLocalStorage('user');
     const historialItem = {
       userId: user.id,
-      userName: this.utilsSvc.getFromLocalStorage('user').name,
+      userName: user.name,
       role: role,
       viajeId: viaje.id,
       fecha: new Date(),
@@ -115,11 +115,11 @@ export class FirebaseService {
     const ref = collection(getFirestore(), 'viajes');
     const q = query(ref, where('userId', '==', userId), where('estado', '==', 'en_curso'));
     return collectionData(q, { idField: 'id' }).pipe(
-      map((viajes) => (viajes.length > 0 ? viajes[0] : null)) // Asumimos que solo puede haber un viaje en curso
+      map((viajes) => (viajes.length > 0 ? viajes[0] : null))
     );
   }
 
-  // Método adicional para verificar si hay un viaje en curso antes de iniciar uno nuevo
+  // Verifica si el usuario tiene un viaje en curso
   async verificarViajeEnCurso(userId: string): Promise<boolean> {
     const ref = collection(getFirestore(), 'viajes');
     const q = query(ref, where('userId', '==', userId), where('estado', '==', 'en_curso'));

@@ -31,50 +31,70 @@
       </ion-content>
     </ion-tab>
 
-    <!-- Pestaña Iniciar un viaje (Formulario) -->
-    <ion-tab tab="iniciar-viaje">
+<!-- Pestaña Iniciar un viaje (Formulario) -->
+<ion-tab tab="iniciar-viaje">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Iniciar un viaje</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="form-content">
+    <form [formGroup]="form" class="form-wrapper ion-padding" (ngSubmit)="submit()" (keypress.enter)="submit()">
+      
+      <!-- Campo Usuario -->
+      <ion-item>
+        <ion-label position="floating">Usuario</ion-label>
+        <h2>{{ userName }}</h2>
+      </ion-item>
+
+      <!-- Campo Vehículo -->
+      <ion-item>
+        <ion-label position="floating">Vehículo</ion-label>
+        <ion-input type="text" [formControl]="vehiculo" autocomplete="on"></ion-input>
+      </ion-item>
+
+      <!-- Campo Patente -->
+      <ion-item>
+        <ion-label position="floating">Patente</ion-label>
+        <ion-input type="text" [formControl]="patente" autocomplete="on"></ion-input>
+      </ion-item>
+
+      <!-- Campo Espacio disponible -->
+      <ion-item>
+        <ion-label position="floating">Espacio disponible</ion-label>
+        <ion-input type="number" [formControl]="espacio"></ion-input>
+      </ion-item>
+
+      <!-- Campo Precio por persona -->
+      <ion-item>
+        <ion-label position="floating">Precio por persona</ion-label>
+        <ion-input type="number" [formControl]="price"></ion-input>
+      </ion-item>
+
+      <!-- Seleccionar Destino -->
+      <ion-item>
+        <ion-label>Seleccionar Destino <div id="instructions"></div> <div id="map" style="width: 100%; height: 300px; margin-top: 10px;"></div></ion-label>
+      </ion-item>
+      
+
+      <ion-button mode="ios" class="ion-margin" type="submit" [disabled]="form.invalid">
+        Iniciar viaje
+        <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
+      </ion-button>
+      
+    </form>
+  </ion-content>
+</ion-tab>
+
+    <ion-tab tab="mapa">
       <ion-header>
         <ion-toolbar>
-          <ion-title>Iniciar un viaje</ion-title>
+          <ion-title>Mapa</ion-title>
         </ion-toolbar>
       </ion-header>
-
-      <ion-content class="form-content">
-        <form [formGroup]="form" class="form-wrapper ion-padding" (ngSubmit)="submit()" (keypress.enter)="submit()">
-
-  
-          <ion-item>
-            <ion-label position="floating">Usuario</ion-label>
-            <h2>{{ userName }}</h2>
-          </ion-item>
-
-          <!-- Campo Vehículo -->
-          <ion-item>
-            <ion-label position="floating">Vehículo</ion-label>
-            <ion-input type="text" [formControl]="vehiculo" autocomplete="on"></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-label position="floating">Patente</ion-label>
-            <ion-input type="text" [formControl]="patente" autocomplete="on"></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-label position="floating">Espacio disponible</ion-label>
-            <ion-input type="number" [formControl]="espacio"></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-label position="floating">Precio por persona</ion-label>
-            <ion-input type="number" [formControl]="price"></ion-input>
-          </ion-item>
-
-          <ion-button mode="ios" class="ion-margin" type="submit" [disabled]="form.invalid">
-            Iniciar viaje
-            <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
-          </ion-button>
-
-        </form>
+      <ion-content>
+        <div id="map" style="width: 100%; height: 100%;"></div>
       </ion-content>
     </ion-tab>
 
@@ -135,6 +155,10 @@
       <ion-tab-button tab="iniciar-viaje">
         <ion-icon name="add-circle-outline"></ion-icon>
         <ion-label>Iniciar un viaje</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="mapa">
+        <ion-icon name="navigate-circle-outline"></ion-icon>
+        <ion-label>Mapa</ion-label>
       </ion-tab-button>
       <ion-tab-button tab="historial">
         <ion-icon name="time-outline"></ion-icon>
