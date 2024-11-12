@@ -1,145 +1,224 @@
 <ion-content>
-    <ion-content>
-  <ion-tabs>
-    <!-- Pestaña Unirse a viaje -->
-    <ion-tab tab="home">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Unirse a viaje</ion-title>
-        </ion-toolbar>
-      </ion-header>
+  <ion-content>
+    <ion-tabs>
+      <!-- Pestaña Unirse a viaje -->
+      <ion-tab tab="home">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Unirse a viaje</ion-title>
+          </ion-toolbar>
+        </ion-header>
 
-      <ion-content>
-        <!-- Selector de filtro -->
-        <ion-segment [(ngModel)]="sortBy" (ionChange)="applyFilter()">
-          <ion-segment-button value="precio">Precio</ion-segment-button>
-          <ion-segment-button value="espacio">Espacio</ion-segment-button>
-          <ion-segment-button value="disponibles">Disponibles</ion-segment-button>
-          <ion-segment-button value="cercania">Cercanía</ion-segment-button>
-        </ion-segment>
+        <ion-content>
+          <!-- Selector de filtro -->
+          <ion-segment [(ngModel)]="sortBy" (ionChange)="applyFilter()">
+            <ion-segment-button value="precio">Precio</ion-segment-button>
+            <ion-segment-button value="espacio">Espacio</ion-segment-button>
+            <ion-segment-button value="disponibles">Disponibles</ion-segment-button>
+          </ion-segment>
 
-        <!-- Lista de viajes -->
-        <ion-list>
-          <ion-item *ngFor="let viaje of filteredViajes" (click)="openViajeDetail(viaje)">
-            <ion-label>
-              <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
-              <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }}</p>
-            </ion-label>
-            <ion-button slot="end" (click)="joinViaje(viaje); $event.stopPropagation()">Unirse</ion-button>
-          </ion-item>
-        </ion-list>
-      </ion-content>
-    </ion-tab>
+          <!-- Lista de viajes -->
+          <ion-list>
+            <ion-item *ngFor="let viaje of filteredViajes" (click)="openViajeDetail(viaje)">
+              <ion-label>
+                <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
+                <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }} | destinoNombre: {{ viaje.destinoNombre }}</p>
+              </ion-label>
+              <ion-button
+  slot="end"
+  class="animate-button"
+  (click)="joinViaje(viaje); $event.stopPropagation()">
+  Unirse
+</ion-button>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-tab>
 
-    <!-- Pestaña Iniciar un viaje (Formulario) -->
-    <ion-tab tab="iniciar-viaje">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Iniciar un viaje</ion-title>
-        </ion-toolbar>
-      </ion-header>
+      <!-- Pestaña Iniciar un viaje (Formulario) -->
+      <ion-tab tab="iniciar-viaje">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Iniciar un viaje</ion-title>
+          </ion-toolbar>
+        </ion-header>
 
-      <ion-content class="form-content">
-        <form [formGroup]="form" class="form-wrapper ion-padding" (ngSubmit)="submit()" (keypress.enter)="submit()">
-
-  
-          <ion-item>
-            <ion-label position="floating">Usuario</ion-label>
-            <h2>{{ userName }}</h2>
-          </ion-item>
-
-          <!-- Campo Vehículo -->
-          <ion-item>
-            <ion-label position="floating">Vehículo</ion-label>
-            <ion-input type="text" [formControl]="vehiculo" autocomplete="on"></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-label position="floating">Patente</ion-label>
-            <ion-input type="text" [formControl]="patente" autocomplete="on"></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-label position="floating">Espacio disponible</ion-label>
-            <ion-input type="number" [formControl]="espacio"></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-label position="floating">Precio por persona</ion-label>
-            <ion-input type="number" [formControl]="price"></ion-input>
-          </ion-item>
-
-          <ion-button mode="ios" class="ion-margin" type="submit" [disabled]="form.invalid">
-            Iniciar viaje
-            <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
-          </ion-button>
-
-        </form>
-      </ion-content>
-    </ion-tab>
-
-
-    <!-- Pestaña Historial de viajes -->
-    <ion-tab tab="historial">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Historial de viajes</ion-title>
-        </ion-toolbar>
-      </ion-header>
-      
-      <ion-content>
-        <!-- Selector para cambiar entre los apartados de historial -->
-        <ion-segment [(ngModel)]="historialSegment">
-          <ion-segment-button value="unirse">
-            Unirse a viajes
-          </ion-segment-button>
-          <ion-segment-button value="iniciar">
-            Iniciar viajes
-          </ion-segment-button>
-        </ion-segment>
+        <ion-content class="form-content">
+          <form [formGroup]="form" class="form-wrapper ion-padding" (ngSubmit)="submit()" (keypress.enter)="submit()">
         
-        <!-- Historial de viajes como pasajero -->
-        <ion-list *ngIf="historialSegment === 'unirse'">
-          <ion-item *ngFor="let viaje of viajesUnidos">
-            <ion-label>
-              <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
-              <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }}</p>
-            </ion-label>
-            <ion-button slot="end" color="primary" fill="outline" (click)="verDetalle(viaje)">
-              Ver detalles
-            </ion-button>
-          </ion-item>
-        </ion-list>
-    
-        <!-- Historial de viajes como conductor -->
-        <ion-list *ngIf="historialSegment === 'iniciar'">
-          <ion-item *ngFor="let viaje of viajesIniciados">
-            <ion-label>
-              <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
-              <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }}</p>
-            </ion-label>
-            <ion-button slot="end" color="secondary" fill="outline" (click)="verDetalle(viaje)">
-              Ver detalles
-            </ion-button>
-          </ion-item>
-        </ion-list>
-      </ion-content>
-    </ion-tab>
+            <!-- Campo Usuario -->
+            <ion-item>
+              <ion-label position="floating">Usuario</ion-label>
+              <h2>{{ userName }}</h2>
+            </ion-item>
+        
+            <!-- Campo Vehículo -->
+            <ion-item>
+              <ion-label position="floating">Vehículo</ion-label>
+              <ion-input 
+                type="text" 
+                formControlName="vehiculo" 
+                autocomplete="on"
+                maxlength="10" 
+                pattern="^[a-zA-Z]+$"
+                [class.invalid]="form.controls['vehiculo'].invalid && form.controls['vehiculo'].touched">
+              </ion-input>
+            </ion-item>
+            <div *ngIf="form.controls['vehiculo'].invalid && form.controls['vehiculo'].touched" class="error-message">
+              <small *ngIf="form.controls['vehiculo'].hasError('required')">Este campo es obligatorio.</small>
+              <small *ngIf="form.controls['vehiculo'].hasError('maxlength')">El vehículo debe tener máximo 10 caracteres.</small>
+              <small *ngIf="form.controls['vehiculo'].hasError('pattern')">Solo se permiten letras.</small>
+            </div>
+        
+            <!-- Campo Patente -->
+            <ion-item>
+              <ion-label position="floating">Patente</ion-label>
+              <ion-input 
+                type="text" 
+                formControlName="patente" 
+                autocomplete="on"
+                maxlength="6" 
+                pattern="^[a-zA-Z0-9]+$"
+                [class.invalid]="form.controls['patente'].invalid && form.controls['patente'].touched">
+              </ion-input>
+            </ion-item>
+            <div *ngIf="form.controls['patente'].invalid && form.controls['patente'].touched" class="error-message">
+              <small *ngIf="form.controls['patente'].hasError('required')">Este campo es obligatorio.</small>
+              <small *ngIf="form.controls['patente'].hasError('maxlength')">La patente debe tener exactamente 6 caracteres.</small>
+              <small *ngIf="form.controls['patente'].hasError('pattern')">La patente debe ser alfanumérica.</small>
+            </div>
+        
+            <!-- Campo Espacio disponible -->
+            <ion-item>
+              <ion-label position="floating">Espacio disponible</ion-label>
+              <ion-input 
+                type="number" 
+                formControlName="espacio" 
+                autocomplete="on"
+                maxlength="1"
+                min="1" max="4"
+                [class.invalid]="form.controls['espacio'].invalid && form.controls['espacio'].touched">
+              </ion-input>
+            </ion-item>
+            <div *ngIf="form.controls['espacio'].invalid && form.controls['espacio'].touched" class="error-message">
+              <small *ngIf="form.controls['espacio'].hasError('required')">Este campo es obligatorio.</small>
+              <small *ngIf="form.controls['espacio'].hasError('pattern')">Solo se permiten los números 1, 2, 3, 4.</small>
+            </div>
+        
+            <!-- Campo Precio por persona -->
+            <ion-item>
+              <ion-label position="floating">Precio por persona</ion-label>
+              <ion-input 
+                type="number" 
+                formControlName="price" 
+                min="0"
+                [class.invalid]="form.controls['price'].invalid && form.controls['price'].touched">
+              </ion-input>
+            </ion-item>
+            <div *ngIf="form.controls['price'].invalid && form.controls['price'].touched" class="error-message">
+              <small *ngIf="form.controls['price'].hasError('required')">Este campo es obligatorio.</small>
+              <small *ngIf="form.controls['price'].hasError('min')">El precio no puede ser negativo.</small>
+              <small *ngIf="form.controls['price'].hasError('pattern')">Solo se permiten números.</small>
+            </div>
+        
+            <!-- Campo Nombre del Destino -->
+            <ion-item>
+              <ion-label position="floating">Nombre del destino</ion-label>
+              <ion-input 
+                type="text" 
+                formControlName="destinoNombre" 
+                maxlength="10"
+                pattern="^[^0-9]*$"
+                [class.invalid]="form.controls['destinoNombre'].invalid && form.controls['destinoNombre'].touched">
+              </ion-input>
+            </ion-item>
+            <div *ngIf="form.controls['destinoNombre'].invalid && form.controls['destinoNombre'].touched" class="error-message">
+              <small *ngIf="form.controls['destinoNombre'].hasError('required')">Este campo es obligatorio.</small>
+              <small *ngIf="form.controls['destinoNombre'].hasError('maxlength')">El nombre del destino debe tener máximo 10 caracteres.</small>
+              <small *ngIf="form.controls['destinoNombre'].hasError('pattern')">No se permiten números en el nombre.</small>
+            </div>
 
-    <!-- Barra de pestañas inferior -->
-    <ion-tab-bar slot="bottom">
-      <ion-tab-button tab="home">
-        <ion-icon name="car-sport-outline"></ion-icon>
-        <ion-label>Unirse a viaje</ion-label>
-      </ion-tab-button>
-      <ion-tab-button tab="iniciar-viaje">
-        <ion-icon name="add-circle-outline"></ion-icon>
-        <ion-label>Iniciar un viaje</ion-label>
-      </ion-tab-button>
-      <ion-tab-button tab="historial">
-        <ion-icon name="time-outline"></ion-icon>
-        <ion-label>Historial de viajes</ion-label>
-      </ion-tab-button>
-    </ion-tab-bar>
-  </ion-tabs>
-</ion-content>
+            <!-- Seleccionar Destino -->
+            <ion-item>
+              <ion-label>Seleccionar Destino <div id="instructions"></div>
+                <div id="map" style="width: 100%; height: 300px; margin-top: 10px;"></div>
+              </ion-label>
+            </ion-item>
+
+
+            <ion-button mode="ios" class="ion-margin" type="submit" [disabled]="form.invalid">
+              Iniciar viaje
+              <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
+            </ion-button>
+
+          </form>
+        </ion-content>
+      </ion-tab>
+
+
+
+
+      <!-- Pestaña Historial de viajes -->
+      <ion-tab tab="historial">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Historial de viajes</ion-title>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content>
+          <!-- Selector para cambiar entre los apartados de historial -->
+          <ion-segment [(ngModel)]="historialSegment">
+            <ion-segment-button value="unirse">
+              Unirse a viajes
+            </ion-segment-button>
+            <ion-segment-button value="iniciar">
+              Iniciar viajes
+            </ion-segment-button>
+          </ion-segment>
+
+          <!-- Historial de viajes como pasajero -->
+          <ion-list *ngIf="historialSegment === 'unirse'">
+            <ion-item *ngFor="let viaje of viajesUnidos">
+              <ion-label>
+                <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
+                <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }} | destinoNombre: {{ viaje.destinoNombre }}</p>
+              </ion-label>
+              <ion-button slot="end" color="primary" fill="outline" (click)="verDetalle(viaje)">
+                Ver detalles
+              </ion-button>
+            </ion-item>
+          </ion-list>
+
+          <!-- Historial de viajes como conductor -->
+          <ion-list *ngIf="historialSegment === 'iniciar'">
+            <ion-item *ngFor="let viaje of viajesIniciados">
+              <ion-label>
+                <h2>{{ viaje.vehiculo }} - {{ viaje.patente }}</h2>
+                <p>Precio: {{ viaje.price }} | Espacios: {{ viaje.espacio }} | destinoNombre: {{ viaje.destinoNombre }}</p>
+              </ion-label>
+              <ion-button slot="end" color="secondary" fill="outline" (click)="verDetalle(viaje)">
+                Ver detalles
+              </ion-button>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-tab>
+
+      <!-- Barra de pestañas inferior -->
+      <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="home">
+          <ion-icon name="car-sport-outline"></ion-icon>
+          <ion-label>Unirse a viaje</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="iniciar-viaje">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          <ion-label>Iniciar un viaje</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="historial">
+          <ion-icon name="time-outline"></ion-icon>
+          <ion-label>Historial de viajes</ion-label>
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
+  </ion-content>
