@@ -43,3 +43,35 @@
     font-size: 24px;
   }
   
+
+  .animate-button {
+    animation: pulse 1s infinite;
+  }
+
+  .custom-alert .alert-message {
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #ffffff; /* Opcional: Ajustar colores */
+  }
+  
+  .custom-alert {
+    --background: #1e1e1e; /* Fondo oscuro */
+    --color: #ffffff; /* Texto claro */
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      background-color: #007bff;
+    }
+    50% {
+      transform: scale(1.1);
+      background-color: #0056b3;
+    }
+    100% {
+      transform: scale(1);
+      background-color: #007bff;
+    }
+  }
+  
