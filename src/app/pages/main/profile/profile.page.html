@@ -7,11 +7,6 @@
         <ion-icon *ngIf="!user()?.image" class="empty-icon" name="person-circle-outline"></ion-icon>
     </ion-avatar>
 
-    <!-- Botón para tomar nueva foto -->
-    <ion-button class="photo-btn" (click)="takeImage()" mode="ios" size="small" shape="round">
-        <ion-icon name="camera-outline"></ion-icon>
-    </ion-button>
-
     <!-- Información del usuario -->
     <h2>{{ user()?.name }}</h2>
     <div>Usuario</div>
