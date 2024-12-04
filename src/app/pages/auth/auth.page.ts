@@ -58,54 +58,40 @@ async submit(){
   }
 
 
-
-
-
-
-  async getUserInfo(uid: string){
-    if (this.form.valid) {
-
-      const loading = await this.utilsSvc.loading();
-      await loading.present();
-
-      let path = `users/${uid}`;
-
-      this.firebaseSvc.getDocument(path).then((user: User) => {
-
-        this.utilsSvc.saveInLocalStorage('user', user);
-        this.utilsSvc.routerLink('/main/home');
-        this.form.reset();
-
-
-        this.utilsSvc.presentToast({
-          message: `Te damos la Bienvenida ${user.name}`,
-          duration: 2000,
-          color: 'primary',
-          position: 'middle',
-          icon: 'person-circle-outline'
-        })
-
-      }).catch(error => {
-        console.log(error);
-
-        this.utilsSvc.presentToast({
-          message: error.message,
-          duration: 3000,
-          color: 'primary',
-          position: 'middle',
-          icon: 'alert-circle-outline'
-        })
-
-
-      }).finally(() => {
-        loading.dismiss();
-      })
-    }
-
-  }
-
-
-
+  async getUserInfo(uid: string) {
+    const loading = await this.utilsSvc.loading();
+    await loading.present();
   
+    const path = `users/${uid}`;
+    this.firebaseSvc.getDocument(path).then((user: User) => {
+      this.utilsSvc.saveInLocalStorage('user', user);
+  
+      // Verificar si el usuario ya tiene un rol asignado
+      if (user.role === 'pasajero') {
+        this.utilsSvc.routerLink('/main/home');
+      } else if (user.role === 'conductor') {
+        this.utilsSvc.routerLink('/main/conductor-home');
+      } else {
+        // Si no tiene rol, redirigir a la selección de roles
+        this.utilsSvc.routerLink('/role-selection');
+      }
+  
+      this.utilsSvc.presentToast({
+        message: `Bienvenido ${user.name}`,
+        duration: 2000,
+        color: 'primary',
+      });
+      this.form.reset();
+    }).catch(error => {
+      console.log(error);
+      this.utilsSvc.presentToast({
+        message: error.message,
+        duration: 3000,
+        color: 'danger',
+      });
+    }).finally(() => {
+      loading.dismiss();
+    });
+  }
 }
 

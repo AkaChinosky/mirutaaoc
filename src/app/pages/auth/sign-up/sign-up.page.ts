@@ -27,21 +27,18 @@ utilsSvc = inject(UtilsService)
   }
 
 
-async submit(){
+  async submit() {
     if (this.form.valid) {
-
       const loading = await this.utilsSvc.loading();
       await loading.present();
 
       this.firebaseSvc.signUp(this.form.value as User).then(async res => {
+        await this.firebaseSvc.updateUser(this.form.value.name);
 
-        await this.firebaseSvc.updateUser(this.form.value.name)
-
-        let uid = res.user.uid;
+        const uid = res.user.uid;
         this.form.controls.uid.setValue(uid);
 
         this.setUserInfo(uid);
-
       }).catch(error => {
         console.log(error);
 
@@ -51,34 +48,45 @@ async submit(){
           color: 'primary',
           position: 'middle',
           icon: 'alert-circle-outline'
-        })
-
-
+        });
       }).finally(() => {
         loading.dismiss();
-      })
+      });
     }
-
   }
 
 
 
-  async setUserInfo(uid: string){
+  async setUserInfo(uid: string) {
     if (this.form.valid) {
-
       const loading = await this.utilsSvc.loading();
       await loading.present();
 
-      let path = `users/${uid}`
-      delete this.form.value.password
+      const path = `users/${uid}`;
+      delete this.form.value.password;
 
-      this.firebaseSvc.setDocument(path, this.form.value).then(async res => {
+      this.firebaseSvc.setDocument(path, this.form.value).then(async () => {
+        // Verificar si el usuario tiene un rol asignado
+        this.firebaseSvc.getDocument(path).then((user: User) => {
+          this.utilsSvc.saveInLocalStorage('user', user);
 
-        this.utilsSvc.saveInLocalStorage('user', this.form.value);
-        this.utilsSvc.routerLink('/main/home');
-        this.form.reset();
 
+          if (user.role === 'pasajero') {
+            this.utilsSvc.routerLink('/main/home');
+          } else if (user.role === 'conductor') {
+            this.utilsSvc.routerLink('/main/conductor-home');
+          } else {
+            // Si no tiene rol, redirigir a la selección de roles
+            this.utilsSvc.routerLink('/role-selection');
+          }
 
+          this.utilsSvc.presentToast({
+            message: `Bienvenido ${user.name}`,
+            duration: 2000,
+            color: 'primary',
+          });
+          this.form.reset();
+        });
       }).catch(error => {
         console.log(error);
 
@@ -88,14 +96,10 @@ async submit(){
           color: 'primary',
           position: 'middle',
           icon: 'alert-circle-outline'
-        })
-
-
+        });
       }).finally(() => {
         loading.dismiss();
-      })
+      });
     }
-
   }
-
 }

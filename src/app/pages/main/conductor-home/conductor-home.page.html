@@ -1,0 +1,181 @@
+<ion-content>
+  <ion-tabs>
+
+    <!-- Viaje en curso -->
+    <ion-tab tab="viaje-en-curso">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Viaje en Curso</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <div class="viaje-en-curso-container" *ngIf="viajeEnCurso; else noViajeTemplate">
+          <div class="viaje-en-curso-card">
+            <h2 class="viaje-title">Información del Viaje</h2>
+            <p><strong>Conductor:</strong> {{ vehiculo.nombre }} {{ vehiculo.apellido }}</p>
+            <p><strong>RUT:</strong> {{ vehiculo.rut }}</p>
+            <p><strong>Destino:</strong> {{ destinoNombre }}</p>
+            <p><strong>Espacios Disponibles:</strong> {{ viajeEnCurso.espaciodisponible }}</p>
+            <ion-button expand="block" color="danger" (click)="finalizarViaje()">
+              Finalizar Viaje
+            </ion-button>
+          </div>
+        </div>
+      
+        <ng-template #noViajeTemplate>
+          <div class="no-viaje">
+            <ion-icon name="car-outline" size="large"></ion-icon>
+            <h2>No hay ningún viaje en curso</h2>
+          </div>
+        </ng-template>
+      </ion-content>
+      
+    </ion-tab>
+
+    <!-- Iniciar un viaje -->
+    <ion-tab tab="iniciar">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Iniciar un viaje</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <div class="form-content">
+          <form [formGroup]="iniciarViajeForm" class="form-wrapper ion-padding" (ngSubmit)="submitViaje()">
+            <ion-item>
+              <ion-label position="floating">Espacio disponible</ion-label>
+              <ion-input type="number" formControlName="espaciodisponible"></ion-input>
+            </ion-item>
+        
+            <ion-item>
+              <ion-label position="floating">Precio por persona</ion-label>
+              <ion-input type="number" formControlName="price"></ion-input>
+            </ion-item>
+        
+            <ion-item>
+              <ion-label position="floating">Nombre del destino</ion-label>
+              <ion-input type="text" formControlName="destinoNombre"></ion-input>
+            </ion-item>
+    
+            <ion-item>
+              <ion-label>
+                Seleccionar Destino
+                <div id="instructions"></div>
+                <div id="map"></div>
+              </ion-label>
+            </ion-item>
+        
+            <ion-button expand="full" type="submit" class="animate-button" [disabled]="iniciarViajeForm.invalid">
+              Iniciar Viaje
+            </ion-button>
+    
+            <!-- Mensaje de advertencia -->
+            <div class="alert alert-warning">
+              Para poder iniciar un viaje recuerda registrar un vehículo.
+            </div>
+          </form>
+        </div>
+      </ion-content>
+    </ion-tab>
+
+    <!-- Registrar vehículo -->
+    <ion-tab tab="registrar-vehiculo">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Registrar vehículo</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <div *ngIf="vehiculoRegistrado; else formularioRegistro">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Vehículo registrado</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <p><strong>Nombre:</strong> {{ vehiculo.nombre }}</p>
+              <p><strong>Apellido:</strong> {{ vehiculo.apellido }}</p>
+              <p><strong>RUT:</strong> {{ vehiculo.rut }}</p>
+              <p><strong>Vehículo:</strong> {{ vehiculo.vehiculo }}</p>
+              <p><strong>Patente:</strong> {{ vehiculo.patente }}</p>
+            </ion-card-content>
+            <ion-button expand="full" color="danger" (click)="eliminarVehiculo()">
+              Eliminar vehículo
+            </ion-button>
+            <ion-button expand="full" color="secondary" (click)="editarVehiculo()">
+              Editar vehículo
+            </ion-button>
+          </ion-card>
+        </div>
+        <ng-template #formularioRegistro>
+          <form [formGroup]="form" class="form-wrapper ion-padding" (ngSubmit)="submitVehiculo()">
+            <ion-item>
+              <ion-label position="floating">Nombre</ion-label>
+              <ion-input formControlName="nombre" maxlength="50"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Apellido</ion-label>
+              <ion-input formControlName="apellido" maxlength="50"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">RUT</ion-label>
+              <ion-input formControlName="rut" maxlength="12" placeholder="Ej: 12345678-9"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Vehículo</ion-label>
+              <ion-input formControlName="vehiculo" maxlength="10"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Patente</ion-label>
+              <ion-input formControlName="patente" maxlength="6"></ion-input>
+            </ion-item>
+            <ion-button expand="full" type="submit" [disabled]="form.invalid">
+              Registrar vehículo
+            </ion-button>
+          </form>
+        </ng-template>
+      </ion-content>
+    </ion-tab>
+
+
+
+    <!-- Historial -->
+    <ion-tab tab="historial">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Historial de viajes</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list>
+          <ion-item *ngFor="let viaje of viajesIniciados">
+            <ion-label>
+              <h2>{{ viaje.destinoNombre }}</h2>
+              <p>Precio: ${{ viaje.price }} | Espacios: {{ viaje.espaciodisponible }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ion-tab>
+    
+
+    <!-- Barra de pestañas -->
+    <ion-tab-bar slot="bottom">
+      <ion-tab-button tab="viaje-en-curso">
+        <ion-icon name="car-outline"></ion-icon>
+        <ion-label>Viaje en curso</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="iniciar">
+        <ion-icon name="navigate-outline"></ion-icon>
+        <ion-label>Iniciar viaje</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="registrar-vehiculo">
+        <ion-icon name="car"></ion-icon>
+        <ion-label>Registrar</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="historial">
+        <ion-icon name="time-outline"></ion-icon>
+        <ion-label>Historial</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ion-tabs>
+</ion-content>

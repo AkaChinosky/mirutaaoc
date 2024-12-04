@@ -1,0 +1,145 @@
+.example-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .form-content {
+    background-color: #303030;
+  }
+  
+  .form-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px;
+    background-color: #292929;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .iniciarViajeForm-content {
+    background-color: #303030;
+  }
+  
+  .iniciarViajeForm-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px;
+    background-color: #292929;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  ion-content {
+    --background: #1e1e1e;
+    color: #505050;
+  }
+  
+  .viaje-en-curso {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .alert {
+    text-align: center;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 8px;
+  }
+  
+  .alert-warning {
+    background-color: #007bff;
+    color: red;
+  }
+  
+  #map {
+    width: 100%;
+    height: 400px;
+    margin-top: 10px;
+  }
+  
+  .start-marker, .end-marker {
+    width: 30px;
+    height: 30px;
+    background-size: contain;
+  }
+  
+  ion-thumbnail img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .vehicle-marker {
+    font-size: 24px;
+  }
+  
+  .animate-button {
+    animation: pulse 1.5s infinite;
+  }
+  
+  .custom-alert .alert-message {
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: green; /* Opcional: Ajustar colores */
+  }
+  
+  .custom-alert {
+    --background: #1e1e1e; /* Fondo oscuro */
+    --color: #ffffff; /* Texto claro */
+  }
+
+
+  .viaje-en-curso-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .viaje-en-curso-card {
+    background: #303030;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 400px;
+    text-align: left;
+    width: 90%;
+  }
+  
+  .viaje-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .no-viaje {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+  
+  .no-viaje ion-icon {
+    color: #999;
+    margin-bottom: 10px;
+  }
+  
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      background-color: #007bff;
+    }
+    50% {
+      transform: scale(1.1);
+      background-color: #0056b3;
+    }
+    100% {
+      transform: scale(1);
+      background-color: #007bff;
+    }
+  }
+  

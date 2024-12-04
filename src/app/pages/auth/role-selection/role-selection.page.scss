@@ -1,0 +1,74 @@
+.role-selection-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%; // Asegura que ocupe todo el espacio vertical
+    background: linear-gradient(135deg, #000000, #000000); // Fondo con degradado moderno
+  }
+  
+  .role-selection-container {
+    text-align: center;
+    animation: fadeIn 2s ease-in-out; // Animación de entrada
+    padding: 20px;
+    background: rgba(26, 25, 25, 0.9); // Fondo semitransparente para destacar el contenido
+    border-radius: 20px; // Bordes redondeados
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); // Sombra para efecto flotante
+  }
+  
+  .role-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff; // Color que combina con el fondo
+    margin-bottom: 20px;
+  }
+  
+  .role-button {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.3); // Sombra en los botones
+    transition: transform 0.3s, box-shadow 0.3s; // Efecto de animación al interactuar
+  
+    ion-icon {
+      font-size: 24px;
+      margin-right: 10px;
+    }
+  }
+  
+  .role-button:hover {
+    transform: scale(1.05); // Efecto de agrandamiento
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4); // Intensificar sombra
+  }
+  
+  .pasajero-button {
+    background: #1f1f1f; // Amarillo vibrante
+    color: #0f0f0f;
+  }
+  
+  .pasajero-button:hover {
+    background: #9be5fc; // Amarillo más claro al pasar el cursor
+  }
+  
+  .conductor-button {
+    background: #1f1f1f; // Verde vibrante
+    color: rgb(0, 0, 0);
+  }
+  
+  .conductor-button:hover {
+    background: #9be5fc; // Verde más claro al pasar el cursor
+  }
+  
+  /* Animación de entrada */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-toolbar >
+    <ion-title class="ion-text-center">
+      Seleccionar Rol
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding role-selection-content">
+  <div class="role-selection-container">
+    <h2 class="role-title">Que seras hoy</h2>
+    <ion-button expand="block" (click)="selectRole('pasajero')" class="role-button pasajero-button">
+      <ion-icon name="person-outline" slot="start"></ion-icon>
+      Pasajero
+    </ion-button>
+    <ion-button expand="block"  (click)="selectRole('conductor')" class="role-button conductor-button">
+      <ion-icon name="car-outline" slot="start"></ion-icon>
+      Conductor
+    </ion-button>
+  </div>
+</ion-content>

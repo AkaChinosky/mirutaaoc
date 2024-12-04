@@ -7,6 +7,9 @@ import { getFirestore, setDoc, doc, getDoc, addDoc, collection, collectionData, 
 import { UtilsService } from './utils.service';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { map, Observable } from 'rxjs';
+import { orderBy } from 'firebase/firestore/lite';
+
+
 
 
 @Injectable({
@@ -40,10 +43,16 @@ export class FirebaseService {
   }
 
   signOut() {
+    const user = this.utilsSvc.getFromLocalStorage('user');
+    if (user) {
+      const path = `users/${user.uid}`;
+      this.updateDocument(path, { role: null }); // Elimina el rol
+    }
     getAuth().signOut();
     localStorage.removeItem('user');
     this.utilsSvc.routerLink('/auth');
   }
+  
 
   // Métodos específicos para viajes
   getViajesDisponibles(): Observable<any[]> {
@@ -59,16 +68,18 @@ export class FirebaseService {
   }
 
   guardarViaje(viaje: any) {
-    const viajeData = { ...viaje, estado: 'en_curso' };
+    const viajeData = { ...viaje, estado: 'viajes' };
     return addDoc(collection(getFirestore(), 'viajes'), viajeData);
   }
 
-  actualizarViaje(viaje: any) {
-    const viajeDoc = doc(getFirestore(), `viajes/${viaje.id}`);
-    return setDoc(viajeDoc, viaje, { merge: true });
+  actualizarViaje(viaje: any, data?: Partial<any>) {
+    const viajeDoc = doc(getFirestore(), `viajes/${viaje.id || viaje}`);
+    
+    const updateData = data ? data : viaje;
+    return setDoc(viajeDoc, updateData, { merge: true });
   }
 
-  agregarHistorial(viaje: any, role: string) {
+  guardarHistorial(viaje: any, role: string) {
     const user = this.utilsSvc.getFromLocalStorage('user');
     const historialItem = {
       userId: user.id,
@@ -98,7 +109,8 @@ export class FirebaseService {
   }
 
   updateDocument(path: string, data: any) {
-    return setDoc(doc(getFirestore(), path), data, { merge: true });
+    const docRef = doc(getFirestore(), path);
+    return setDoc(docRef, data, { merge: true });
   }
 
   async uploadImage(path: string, data_url: string) {
@@ -138,6 +150,73 @@ export class FirebaseService {
   }
 
 
+  guardarUsuario(datos: any): Promise<void> {
+    const id = this.firestore.createId(); // Genera un ID único
+    return this.firestore.collection('usuarios').doc(id).set(datos);
+  }
+  
+
+
+  obtenerMensajes(tripId: string): Observable<any[]> {
+    const ref = collection(getFirestore(), `viajes/${tripId}/mensajes`);
+    const q = query(ref, orderBy('timestamp', 'asc'));
+    return collectionData(q, { idField: 'id' });
+  }
+  
+  enviarMensaje(tripId: string, message: any) {
+    const ref = collection(getFirestore(), `viajes/${tripId}/mensajes`);
+    return addDoc(ref, { ...message, timestamp: new Date() });
+  }
+
+  guardarVehiculo(vehiculoData: any) {
+    const userId = vehiculoData.user;
+    return this.firestore.collection('vehiculos').doc(userId).set(vehiculoData);
+  }
+  
+  obtenerVehiculo(userId: string) {
+    return this.firestore.collection('vehiculos').doc(userId).valueChanges();
+  }
+  
+  eliminarVehiculo(userId: string) {
+    return this.firestore.collection('vehiculos').doc(userId).delete();
+  }
+
+  finalizarViaje(viajeId: string): Promise<void> {
+    return this.firestore.collection('viajes').doc(viajeId).update({ estado: 'finalizado', horaFin: new Date().toLocaleString() });
+  }
+
+  getChatMessages(viajeId: string) {
+    return this.firestore
+      .collection(`chats/${viajeId}/messages`, ref => ref.orderBy('timestamp', 'asc'))
+      .valueChanges({ idField: 'id' });
+  }
+
+  sendMessage(viajeId: string, message: any) {
+    return this.firestore.collection(`chats/${viajeId}/messages`).add(message);
+  }
+
+  createChat(viajeId: string) {
+    const chatRef = this.firestore.collection(`chats`).doc(viajeId);
+    return chatRef.set({ createdAt: new Date().toISOString() });
+  }
+
+  guardarIniciarViaje(viajeData: any) {
+    const userId = viajeData.user; // Suponiendo que el formulario incluye un campo `user` (nombre o ID)
+    return this.firestore.collection('iniciarViajes').doc(userId).set(viajeData);
+  }
+  
+  obtenerIniciarViaje(userId: string) {
+    return this.firestore.collection('iniciarViajes').doc(userId).valueChanges();
+  }
+  
+  eliminarIniciarViaje(userId: string) {
+    return this.firestore.collection('iniciarViajes').doc(userId).delete();
+  }
 
   
+
 }
+
+  
+
+

@@ -17,8 +17,8 @@ const routes: Routes = [
     loadChildren: () => import('./terms/terms.module').then( m => m.TermsPageModule)
   },
   {
-    path: 'home',  // Nueva ruta para Home
-    loadChildren: () => import('../home/home.module').then(m => m.HomePageModule)
+    path: 'conductor-home',
+    loadChildren: () => import('../conductor-home/conductor-home.module').then( m => m.ConductorHomePageModule)
   },
 
 ];
